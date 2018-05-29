@@ -1,19 +1,25 @@
 package gui;
 
+import model.DBService;
+
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
-public class addBook extends JFrame {
+public class AddBook extends JFrame {
 
     private JLabel heading;
     private JTextField name, author, isbn;
     private JButton save;
     private JPanel panel;
     private Container container;
+    private DBService dbService;
 
-    public addBook() throws HeadlessException {
+    public AddBook(DBService dbService) throws HeadlessException {
         super("Add book app");
         container = this.getContentPane();
+        this.dbService = dbService;
         //container.setLayout(new BoxLayout(container, BoxLayout.Y_AXIS));
         this.initCompnents();
         this.add(panel);
@@ -34,6 +40,15 @@ public class addBook extends JFrame {
         author = new JTextField();
         isbn = new JTextField();
         save = new JButton("SAVE");
+        save.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String inhaltTextName = name.getText();
+                String inhaltTextAuthor = author.getText();
+                String inhaltTextisbn = isbn.getText();
+                dbService.insertBook(inhaltTextName, inhaltTextAuthor, inhaltTextisbn);
+            }
+        });
 
         panel.add(heading);
         panel.add(name);
@@ -43,7 +58,5 @@ public class addBook extends JFrame {
 
     }
 
-    public static void main(String[] args) {
-        new addBook();
-    }
+
 }
