@@ -15,7 +15,7 @@ public class AddBook extends JFrame {
 
     private JLabel heading, labelInputName, labelInputAuthor, labelInputIsbn, labelStatus;
     private JTextField name, author, isbn;
-    private JButton save;
+    private JButton save, btnBookList;
     private JPanel panel;
     private Container container;
     private DBService dbService;
@@ -26,15 +26,20 @@ public class AddBook extends JFrame {
         this.dbService = dbService;
         this.initCompnents();
         this.add(panel);
-        this.setResizable(false);
-        this.setSize(1024, 768);
+        this.setMinimumSize(new Dimension(640,480));
+        this.setPreferredSize(new Dimension(800,600));
+        this.setMaximumSize(new Dimension(1024,768));
+        this.setResizable(true);
         this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         this.setVisible(true);
     }
 
     private void initCompnents() {
+
+
         panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setBorder(new TitledBorder("Eingabemaske für Bücher:"));
 
 
         heading = new JLabel("Add Book");
@@ -44,31 +49,45 @@ public class AddBook extends JFrame {
         labelStatus = new JLabel("Status: ");
 
 
+        name = new JTextField(5);
 
-        name = new JTextField();
-        name.setMaximumSize(new Dimension(200,20));
+        name.setMaximumSize(new Dimension(400, 20));
         name.setBorder(new TitledBorder("Name des Buches:"));
         author = new JTextField();
         isbn = new JTextField();
         save = new JButton("SAVE");
-
+        btnBookList = new JButton("Zeige Bücher");
 
         save.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+
                 String inhaltTextName = name.getText();
                 String inhaltTextAuthor = author.getText();
                 String inhaltTextisbn = isbn.getText();
 
-                try {
-                    if (dbService.insertBook(inhaltTextName, inhaltTextAuthor, inhaltTextisbn)) {
-                        clearTextFields();
-                        setLabelStatus(true);
+                if (checkInputInteger(inhaltTextisbn) && checkInputLength(inhaltTextName) && checkInputLength(inhaltTextAuthor)) {
+
+                    try {
+                        if (dbService.insertBook(inhaltTextName, inhaltTextAuthor, inhaltTextisbn)) {
+                            clearTextFields();
+                            setLabelStatus(true);
+                        }
+                    } catch (SQLException e1) {
+                        e1.printStackTrace();
                     }
-                } catch (SQLException e1) {
-                    e1.printStackTrace();
+                } else {
+                    setLabelStatus(false);
                 }
 
+
+            }
+        });
+
+
+        btnBookList.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
 
             }
         });
@@ -81,6 +100,7 @@ public class AddBook extends JFrame {
         panel.add(labelInputIsbn);
         panel.add(isbn);
         panel.add(save);
+        panel.add(btnBookList);
         panel.add(labelStatus);
 
 
@@ -101,6 +121,23 @@ public class AddBook extends JFrame {
         this.author.setText("");
         this.isbn.setText("");
 
+    }
+
+    private boolean checkInputInteger(String input) {
+        try {
+            Integer.parseInt(input);
+        } catch (NumberFormatException e) {
+            return false;
+        }
+        return true;
+    }
+
+    private boolean checkInputLength(String input) {
+        if (input.length() > 10) {
+            System.out.println("Text zu groß! Maximum 10 Zeichen! => " + input);
+            return false;
+        }
+        return true;
     }
 
 

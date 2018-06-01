@@ -1,9 +1,8 @@
 package model;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DBService {
 
@@ -12,11 +11,14 @@ public class DBService {
     private final String USER = "root2";
     private final String PASSWORT = "mysql";
     private Statement statement;
+    private PreparedStatement preparedStatement;
+
 
     public DBService() throws SQLException {
 
         connection = DriverManager.getConnection(URL, USER, PASSWORT);
         statement = connection.createStatement();
+
 
     }
 
@@ -31,6 +33,22 @@ public class DBService {
         //statement.close();
         return true;
     }
+
+
+    public List<Book> getAllBooks() throws SQLException {
+        List<Book> bookList = new ArrayList<>();
+        String sql = "select * from book";
+        ResultSet resultSet = this.statement.executeQuery(sql);
+        while (resultSet.next()) {
+            String name = resultSet.getString(2);
+            String author = resultSet.getString(3);
+            String isbn = resultSet.getString(4);
+            Book book = new Book(name,author,isbn);
+            bookList.add(book);
+        }
+        return bookList;
+    }
+
 
     public void close() {
         try {
