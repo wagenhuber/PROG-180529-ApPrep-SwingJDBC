@@ -7,15 +7,14 @@ import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
 import java.sql.SQLException;
 
-public class AddBook extends JFrame {
+public class AddBook extends JFrame{
 
     private JLabel heading, labelInputName, labelInputAuthor, labelInputIsbn, labelStatus;
     private JTextField name, author, isbn;
-    private JButton save, btnBookList;
+    private JButton save, exit;
     private JPanel panel;
     private Container container;
     private DBService dbService;
@@ -31,7 +30,18 @@ public class AddBook extends JFrame {
         this.setMaximumSize(new Dimension(1024,768));
         this.setResizable(true);
         this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+
+
+        this.addWindowListener(new WindowAdapter() {
+
+            @Override
+            public void windowActivated(WindowEvent e) {
+                System.out.println("Window aktiv!");
+            }
+        });
+
         this.setVisible(true);
+
     }
 
     private void initCompnents() {
@@ -56,41 +66,48 @@ public class AddBook extends JFrame {
         author = new JTextField();
         isbn = new JTextField();
         save = new JButton("SAVE");
-        btnBookList = new JButton("Zeige Bücher");
+        exit = new JButton("EXIT");
 
         save.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
-                String inhaltTextName = name.getText();
-                String inhaltTextAuthor = author.getText();
-                String inhaltTextisbn = isbn.getText();
-
-                if (checkInputInteger(inhaltTextisbn) && checkInputLength(inhaltTextName) && checkInputLength(inhaltTextAuthor)) {
-
-                    try {
-                        if (dbService.insertBook(inhaltTextName, inhaltTextAuthor, inhaltTextisbn)) {
-                            clearTextFields();
-                            setLabelStatus(true);
-                        }
-                    } catch (SQLException e1) {
-                        e1.printStackTrace();
-                    }
-                } else {
-                    setLabelStatus(false);
-                }
-
-
+                saveToDatabase();
             }
         });
 
 
-        btnBookList.addActionListener(new ActionListener() {
+        save.addKeyListener(new KeyAdapter() {
             @Override
-            public void actionPerformed(ActionEvent e) {
-
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    saveToDatabase();
+                }
             }
         });
+
+
+       save.addMouseListener(new MouseAdapter() {
+           @Override
+           public void mouseEntered(MouseEvent e) {
+               save.setBackground(Color.red);
+           }
+
+           @Override
+           public void mouseExited(MouseEvent e) {
+               save.setBackground(null);
+           }
+       });
+
+
+       exit.addActionListener(new ActionListener() {
+           @Override
+           public void actionPerformed(ActionEvent e) {
+               exitApp();
+
+           }
+       });
+
+
 
         panel.add(heading);
         panel.add(labelInputName);
@@ -100,10 +117,34 @@ public class AddBook extends JFrame {
         panel.add(labelInputIsbn);
         panel.add(isbn);
         panel.add(save);
-        panel.add(btnBookList);
+        panel.add(exit);
         panel.add(labelStatus);
 
 
+    }
+
+    private void exitApp() {
+        int n = JOptionPane.showConfirmDialog(null, "Anwendung beenden", "titel", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+
+        if (n == JOptionPane.YES_OPTION) {
+            System.exit(1);
+        }
+    }
+
+    private void saveToDatabase() {
+        String inhaltTextName = name.getText();
+        String inhaltTextAuthor = author.getText();
+        String inhaltTextisbn = isbn.getText();
+
+        if (checkInputInteger(inhaltTextisbn) && checkInputLength(inhaltTextName) && checkInputLength(inhaltTextAuthor)) {
+            if (dbService.insertBook(inhaltTextName, inhaltTextAuthor, inhaltTextisbn)) {
+                clearTextFields();
+                setLabelStatus(true);
+
+            } else {
+                setLabelStatus(false);
+            }
+        }
     }
 
     private void setLabelStatus(boolean b) {
@@ -139,6 +180,8 @@ public class AddBook extends JFrame {
         }
         return true;
     }
+
+
 
 
 }

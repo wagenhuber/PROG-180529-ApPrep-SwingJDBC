@@ -23,12 +23,16 @@ public class DBService {
     }
 
 
-    public boolean insertBook(String inhaltTextName, String inhaltTextAuthor, String inhaltTextisbn) throws SQLException {
+    public boolean insertBook(String inhaltTextName, String inhaltTextAuthor, String inhaltTextisbn) {
         String sql = "insert into book (name,author,isbn) values ('" + inhaltTextName + "','" + inhaltTextAuthor + "','" + inhaltTextisbn + "')";
         try {
             this.statement.execute(sql);
         } catch (SQLException e) {
+            e.printStackTrace();
+            System.out.println(e.getMessage());
             return false;
+        } catch (Exception e) {
+            System.exit(1);
         }
         //statement.close();
         return true;

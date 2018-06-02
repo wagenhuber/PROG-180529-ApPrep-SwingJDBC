@@ -8,7 +8,7 @@ public class Main {
     public static void main(String[] args) throws SQLException {
 
         DBService dbService = new DBService();
-        //AddBook addBook = new AddBook(dbService);
-        new BookList(dbService);
+        AddBook addBook = new AddBook(dbService);
+        //new BookList(dbService);
     }
 }
