@@ -8,13 +8,14 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.*;
 import java.sql.SQLException;
 
-public class AddBook extends JFrame{
+public class AddBook extends JFrame {
 
     private JLabel heading, labelInputName, labelInputAuthor, labelInputIsbn, labelStatus;
     private JTextField name, author, isbn;
-    private JButton save, exit;
+    private JButton save, exit, openFile, createFile;
     private JPanel panel;
     private Container container;
     private DBService dbService;
@@ -25,9 +26,9 @@ public class AddBook extends JFrame{
         this.dbService = dbService;
         this.initCompnents();
         this.add(panel);
-        this.setMinimumSize(new Dimension(640,480));
-        this.setPreferredSize(new Dimension(800,600));
-        this.setMaximumSize(new Dimension(1024,768));
+        this.setMinimumSize(new Dimension(640, 480));
+        this.setPreferredSize(new Dimension(800, 600));
+        this.setMaximumSize(new Dimension(1024, 768));
         this.setResizable(true);
         this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
@@ -67,6 +68,8 @@ public class AddBook extends JFrame{
         isbn = new JTextField();
         save = new JButton("SAVE");
         exit = new JButton("EXIT");
+        openFile = new JButton("Open file");
+        createFile = new JButton("Create file");
 
         save.addActionListener(new ActionListener() {
             @Override
@@ -86,26 +89,55 @@ public class AddBook extends JFrame{
         });
 
 
-       save.addMouseListener(new MouseAdapter() {
-           @Override
-           public void mouseEntered(MouseEvent e) {
-               save.setBackground(Color.red);
-           }
+        save.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                save.setBackground(Color.red);
+            }
 
-           @Override
-           public void mouseExited(MouseEvent e) {
-               save.setBackground(null);
-           }
-       });
+            @Override
+            public void mouseExited(MouseEvent e) {
+                save.setBackground(null);
+            }
+        });
 
 
-       exit.addActionListener(new ActionListener() {
-           @Override
-           public void actionPerformed(ActionEvent e) {
-               exitApp();
+        openFile.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JFileChooser jFileChooser = new JFileChooser();
+                //jFileChooser.setCurrentDirectory(new File("C:\\"));
+                jFileChooser.showOpenDialog(AddBook.this);
+                //jFileChooser.showSaveDialog(AddBook.this);
 
-           }
-       });
+                try {
+                    loadFile(jFileChooser.getSelectedFile());
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+
+            }
+        });
+
+
+        createFile.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JFileChooser jFileChooser = new JFileChooser();
+                jFileChooser.showSaveDialog(AddBook.this);
+                File file = jFileChooser.getSelectedFile();
+                createFile(file);
+            }
+        });
+
+        exit.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                exitApp();
+
+            }
+        });
+
 
 
 
@@ -117,11 +149,14 @@ public class AddBook extends JFrame{
         panel.add(labelInputIsbn);
         panel.add(isbn);
         panel.add(save);
+        panel.add(openFile);
+        panel.add(createFile);
         panel.add(exit);
         panel.add(labelStatus);
 
-
     }
+
+
 
     private void exitApp() {
         int n = JOptionPane.showConfirmDialog(null, "Anwendung beenden", "titel", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
@@ -181,7 +216,33 @@ public class AddBook extends JFrame{
         return true;
     }
 
+    private void loadFile(File file) throws IOException {
+        InputStream fi = new FileInputStream(file);
+        byte[] bytes = new byte[((int) file.length())];
+        fi.read(bytes);
+        for (int i = 0; i < bytes.length; i++) {
+            byte aByte = bytes[i];
+            System.out.print(((char) aByte));
+        }
+        fi.close();
 
+        /*Reader fr = new FileReader(file);
+        char[] chars = new char[((int) file.length())];
+        for (int i = 0; fr.read() != -1; i++) {
+            chars[i] = (char) fr.read();
+        }
+        String ausgabe = String.copyValueOf(chars);
+        System.out.println(ausgabe);*/
+    }
 
+    private void createFile(File file) {
+        try {
+            FileWriter fw = new FileWriter(file);
+            fw.write(name.getText());
+            fw.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
 }
